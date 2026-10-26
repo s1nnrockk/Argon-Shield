@@ -1,0 +1,70 @@
+name: Argon Shield checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Manifest V3 and JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate manifest JSON and required MV3 files
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+
+          const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+          const assert = (condition, message) => {
+            if (!condition) {
+              console.error('FAIL:', message);
+              process.exitCode = 1;
+            } else {
+              console.log('PASS:', message);
+            }
+          };
+
+          assert(manifest.manifest_version === 3, 'manifest_version is 3');
+          assert(typeof manifest.name === 'string' && manifest.name.length > 0, 'extension name is present');
+          assert(typeof manifest.version === 'string', 'extension version is present');
+          assert(Array.isArray(manifest.permissions), 'permissions is an array');
+          assert(manifest.permissions.includes('proxy'), 'proxy permission is declared');
+          assert(manifest.background && Array.isArray(manifest.background.scripts), 'Firefox background scripts are declared');
+          assert(manifest.action?.default_popup === 'popup.html', 'popup page is configured');
+          assert(manifest.options_ui?.page === 'options.html', 'options page is configured');
+
+          const requiredFiles = [
+            'background.js', 'popup.html', 'popup.js',
+            'options.html', 'options.js', 'icon.svg'
+          ];
+          for (const file of requiredFiles) {
+            assert(fs.existsSync(file), 'required file exists: ' + file);
+          }
+
+          if (process.exitCode) process.exit(1);
+          NODE
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check background.js
+          node --check popup.js
+          node --check options.js
+
+      - name: Lint Firefox extension
+        run: |
+          npm install --global web-ext
+          web-ext lint --source-dir . --warnings-as-errors
