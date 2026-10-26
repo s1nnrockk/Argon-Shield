@@ -1,20 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Argon Shield",
-  "version": "1.1.0",
-  "description": "Cyberpunk proxy manager for Firefox with automatic public proxy discovery and failover.",
+  "version": "1.0.0",
+  "description": "Cyberpunk proxy manager for Firefox with domain routing rules.",
   "permissions": [
     "proxy",
     "storage",
     "activeTab",
     "notifications",
-    "alarms",
-    "webRequest"
+    "alarms"
   ],
   "host_permissions": [
-    "<all_urls>",
-    "https://cdn.jsdelivr.net/*",
-    "https://api.ipify.org/*"
+    "<all_urls>"
   ],
   "background": {
     "scripts": [
