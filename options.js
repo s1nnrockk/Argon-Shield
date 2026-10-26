@@ -84,3 +84,31 @@ api.storage.onChanged.addListener((changes, area) => {
   }
 });
 loadSettings();
+
+$("testConnection").addEventListener("click", async () => {
+  const button = $("testConnection");
+  const state = $("testState");
+  button.disabled = true;
+  state.textContent = "Проверяем настройки…";
+  try {
+    const settings = await api.storage.sync.get({ enabled: false, host: "", port: 8080, protocol: "HTTP" });
+    const host = String(settings.host || "").trim();
+    const port = Number(settings.port);
+    const protocol = String(settings.protocol || "").toUpperCase();
+    if (!settings.enabled) {
+      state.textContent = "Сначала включи прокси в главном окне расширения.";
+      return;
+    }
+    if (!host || !Number.isInteger(port) || port < 1 || port > 65535 || !["HTTP", "HTTPS", "SOCKS5"].includes(protocol)) {
+      state.textContent = "Настройки некорректны. Проверь Host, Port и протокол.";
+      return;
+    }
+    await api.tabs.create({ url: "https://api.ipify.org?format=json", active: true });
+    state.textContent = "Тестовая вкладка открыта. Если видишь JSON с IP — сайт ответил. Сравни IP с прокси выключенным; одинаковый IP не подтверждает работу прокси.";
+  } catch (error) {
+    console.error("Argon Shield connection test failed:", error);
+    state.textContent = "Не удалось открыть тестовую вкладку. Проверь разрешения Firefox.";
+  } finally {
+    button.disabled = false;
+  }
+});
