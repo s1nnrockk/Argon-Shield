@@ -4,13 +4,18 @@ const modeNames = { all: "Все сайты", blacklist: "Список искл�
 async function refresh() {
   try {
     const s = await api.runtime.sendMessage({ type: "GET_STATUS" });
-    $("status").textContent = s.enabled ? "Защита активна" : "Защита выключена";
-    $("sub").textContent = s.enabled ? "Трафик маршрутизируется по правилам" : "Нажми на кнопку, чтобы включить";
+    $("status").textContent = s.enabled ? "Прокси включён" : "Прокси выключен";
+    $("sub").textContent = s.enabled
+      ? (s.lastProxyError ? "Firefox сообщил об ошибке соединения" : "Правила прокси активны; соединение с сервером отдельно не подтверждено")
+      : "Настрой сервер, затем включи прокси";
     $("toggle").classList.toggle("on", s.enabled);
     $("toggle").setAttribute("aria-label", s.enabled ? "Выключить прокси" : "Включить прокси");
     $("server").textContent = s.configured ? s.protocol + " · " + s.host + ":" + s.port : "Не настроен";
     $("mode").textContent = modeNames[s.mode] || modeNames.all;
-    $("sub").classList.remove("error");
+    $("proxyError").textContent = s.lastProxyError ? "Ошибка Firefox: " + s.lastProxyError : "Ошибок прокси от Firefox пока не зарегистрировано";
+    $("proxyError").classList.toggle("error", Boolean(s.lastProxyError));
+    $("clearError").hidden = !s.lastProxyError;
+    $("sub").classList.toggle("error", Boolean(s.lastProxyError));
   } catch (e) {
     $("status").textContent = "Ошибка";
     $("sub").textContent = "Не удалось связаться с фоновым скриптом";
@@ -33,6 +38,10 @@ $("toggle").addEventListener("click", async () => {
     $("toggle").disabled = false;
     await refresh();
   }
+});
+$("clearError").addEventListener("click", async () => {
+  await api.runtime.sendMessage({ type: "CLEAR_PROXY_ERROR" });
+  await refresh();
 });
 $("settings").addEventListener("click", () => api.runtime.openOptionsPage());
 refresh();
