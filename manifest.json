@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Argon Shield",
-  "version": "1.0.0",
-  "description": "Cyberpunk proxy manager for Firefox with domain routing rules.",
+  "version": "1.1.0",
+  "description": "Cyberpunk Firefox proxy manager with connection diagnostics and domain routing rules.",
   "permissions": [
     "proxy",
     "storage",
