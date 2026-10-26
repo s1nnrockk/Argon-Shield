@@ -46,6 +46,7 @@ jobs:
           assert(manifest.background && Array.isArray(manifest.background.scripts), 'Firefox background scripts are declared');
           assert(manifest.action?.default_popup === 'popup.html', 'popup page is configured');
           assert(manifest.options_ui?.page === 'options.html', 'options page is configured');
+          assert(Array.isArray(manifest.browser_specific_settings?.gecko?.data_collection_permissions?.required), 'Firefox data collection permissions are declared');
 
           const requiredFiles = [
             'background.js', 'popup.html', 'popup.js',
