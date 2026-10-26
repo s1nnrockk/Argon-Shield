@@ -64,6 +64,7 @@ jobs:
           node --check background.js
           node --check popup.js
           node --check options.js
+          node tests/background.test.cjs
 
       - name: Lint Firefox extension
         run: |
