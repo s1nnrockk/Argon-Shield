@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Argon Shield",
+  "version": "1.0.0",
+  "description": "Cyberpunk proxy manager for Firefox with domain routing rules.",
+  "permissions": [
+    "proxy",
+    "storage",
+    "activeTab",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_title": "Argon Shield",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "argon-shield@s1nnrockk.github.io",
+      "strict_min_version": "128.0"
+    }
+  }
+}
